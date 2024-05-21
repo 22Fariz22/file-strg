@@ -1,6 +1,8 @@
 package http
 
 import (
+	"fmt"
+
 	"github.com/AleksK1NG/api-mc/config"
 	"github.com/AleksK1NG/api-mc/internal/files"
 	"github.com/AleksK1NG/api-mc/pkg/logger"
@@ -16,6 +18,7 @@ type fileHandlers struct {
 
 // NewFileHandlers File handlers constructor
 func NewFileHandlers(cfg *config.Config, filesUC files.UseCase, logger logger.Logger) files.Handlers {
+	fmt.Println("In NewFileHandlers()")
 	return &fileHandlers{cfg: cfg, filesUC: filesUC, logger: logger}
 }
 

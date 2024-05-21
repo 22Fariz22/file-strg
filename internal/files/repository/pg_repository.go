@@ -14,36 +14,32 @@ type filesRepo struct {
 
 // Files repository constructor
 func NewFilesRepository(db *sqlx.DB) files.Repository {
+	fmt.Println("In NewFilesRepository()")
 	return &filesRepo{db: db}
 }
 
 // Upload file
 func (r *filesRepo) Upload() {
 	fmt.Println("In (r *filesRepo) Upload() ")
-	
 }
 
 // Download file
 func (r *filesRepo) Download() {
 		fmt.Println("In (r *filesRepo) Download() ")
-
 }
 
 // Delete file
 func (r *filesRepo) Delete() {
 		fmt.Println("In (r *filesRepo) Delete() ")
-
 }
 
 // Share file
 func (r *filesRepo) Share() {
 		fmt.Println("In (r *filesRepo) Share() ")
-
 }
 
 // Update file
 func (r *filesRepo) Update() {
 		fmt.Println("In (r *filesRepo) Update() ")
-
 }
 

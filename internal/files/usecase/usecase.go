@@ -17,6 +17,7 @@ type filesUC struct {
 
 // Files UseCase constructor
 func NewFilesUseCase(cfg *config.Config, filesRepo files.Repository, logger logger.Logger) files.UseCase {
+	fmt.Println("In NewFilesUseCase")
 	return &filesUC{cfg: cfg, filesRepo: filesRepo, logger: logger}
 }
 
