@@ -6,12 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Map news routes
-func MapNewsRoutes(filesGroup *echo.Group, h files.Handlers, mw *middleware.MiddlewareManager) {
-	// newsGroup.POST("/create", h.Create(), mw.AuthSessionMiddleware, mw.CSRF)
-	// newsGroup.PUT("/:news_id", h.Update(), mw.AuthSessionMiddleware, mw.CSRF)
-	// newsGroup.DELETE("/:news_id", h.Delete(), mw.AuthSessionMiddleware, mw.CSRF)
-	// newsGroup.GET("/:news_id", h.GetByID())
-	// newsGroup.GET("/search", h.SearchByTitle())
-	// newsGroup.GET("", h.GetNews())
+// Map files routes
+func MapFilesRoutes(filesGroup *echo.Group, h files.Handlers, mw *middleware.MiddlewareManager) {
+	filesGroup.POST("/upload",h.Upload(),mw.AuthSessionMiddleware,mw.CSRF)
+	filesGroup.POST("/download/:file_id",h.Download(),mw.AuthSessionMiddleware,mw.CSRF)
+	filesGroup.DELETE("/delete/:file_id",h.Delete(),mw.AuthSessionMiddleware,mw.CSRF)
+	filesGroup.POST("/share/:file_id",h.Share(),mw.AuthSessionMiddleware,mw.CSRF)
+	filesGroup.PUT("/update/:file_id",h.Update(),mw.AuthSessionMiddleware,mw.CSRF)
 }
