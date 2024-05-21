@@ -4,6 +4,7 @@ import (
 	"github.com/AleksK1NG/api-mc/config"
 	"github.com/AleksK1NG/api-mc/internal/files"
 	"github.com/AleksK1NG/api-mc/pkg/logger"
+	"github.com/labstack/echo/v4"
 )
 
 // Files handlers
@@ -17,3 +18,34 @@ type fileHandlers struct {
 func NewFileHandlers(cfg *config.Config, filesUC files.UseCase, logger logger.Logger) files.Handlers {
 	return &fileHandlers{cfg: cfg, filesUC: filesUC, logger: logger}
 }
+
+func (h fileHandlers)Upload()echo.HandlerFunc{
+	return func(ctx echo.Context) error {
+		return nil
+	}
+}
+
+func (h fileHandlers)Download()echo.HandlerFunc{
+	return func(ctx echo.Context) error {
+		return nil
+	}
+}
+
+func (h fileHandlers)Delete()echo.HandlerFunc{
+	return func(ctx echo.Context) error {
+		return nil
+	}
+}
+
+func (h fileHandlers)Share()echo.HandlerFunc{
+	return func(ctx echo.Context) error {
+		return nil
+	}
+}
+
+func (h fileHandlers)Update()echo.HandlerFunc{
+	return func(ctx echo.Context) error {
+		return nil
+	}
+}
+
