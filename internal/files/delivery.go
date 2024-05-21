@@ -10,4 +10,3 @@ type Handlers interface {
 	Share() echo.HandlerFunc
 	Update() echo.HandlerFunc
 }
-

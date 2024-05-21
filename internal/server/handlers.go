@@ -18,15 +18,15 @@ import (
 	commentsHttp "github.com/AleksK1NG/api-mc/internal/comments/delivery/http"
 	commentsRepository "github.com/AleksK1NG/api-mc/internal/comments/repository"
 	commentsUseCase "github.com/AleksK1NG/api-mc/internal/comments/usecase"
+	filesHttp "github.com/AleksK1NG/api-mc/internal/files/delivery/http"
+	fileRepository "github.com/AleksK1NG/api-mc/internal/files/repository"
+	fileUseCase "github.com/AleksK1NG/api-mc/internal/files/usecase"
 	apiMiddlewares "github.com/AleksK1NG/api-mc/internal/middleware"
 	newsHttp "github.com/AleksK1NG/api-mc/internal/news/delivery/http"
-	filesHttp "github.com/AleksK1NG/api-mc/internal/files/delivery/http"
 	newsRepository "github.com/AleksK1NG/api-mc/internal/news/repository"
 	newsUseCase "github.com/AleksK1NG/api-mc/internal/news/usecase"
 	sessionRepository "github.com/AleksK1NG/api-mc/internal/session/repository"
-	fileRepository "github.com/AleksK1NG/api-mc/internal/files/repository"
 	"github.com/AleksK1NG/api-mc/internal/session/usecase"
-	fileUseCase "github.com/AleksK1NG/api-mc/internal/files/usecase"
 	"github.com/AleksK1NG/api-mc/pkg/metric"
 	"github.com/AleksK1NG/api-mc/pkg/utils"
 )
@@ -58,14 +58,13 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 	newsUC := newsUseCase.NewNewsUseCase(s.cfg, nRepo, newsRedisRepo, s.logger)
 	commUC := commentsUseCase.NewCommentsUseCase(s.cfg, cRepo, s.logger)
 	sessUC := usecase.NewSessionUseCase(sRepo, s.cfg)
-	fileUC := fileUseCase.NewFilesUseCase(s.cfg,filesRepo,  s.logger)
-	
+	fileUC := fileUseCase.NewFilesUseCase(s.cfg, filesRepo, s.logger)
 
 	// Init handlers
 	authHandlers := authHttp.NewAuthHandlers(s.cfg, authUC, sessUC, s.logger)
 	newsHandlers := newsHttp.NewNewsHandlers(s.cfg, newsUC, s.logger)
 	commHandlers := commentsHttp.NewCommentsHandlers(s.cfg, commUC, s.logger)
-	fileHandlers := filesHttp.NewFileHandlers(s.cfg,fileUC,s.logger)
+	fileHandlers := filesHttp.NewFileHandlers(s.cfg, fileUC, s.logger)
 
 	mw := apiMiddlewares.NewMiddlewareManager(sessUC, authUC, s.cfg, []string{"*"}, s.logger)
 
@@ -113,7 +112,7 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 	authHttp.MapAuthRoutes(authGroup, authHandlers, mw)
 	newsHttp.MapNewsRoutes(newsGroup, newsHandlers, mw)
 	commentsHttp.MapCommentsRoutes(commGroup, commHandlers, mw)
-  filesHttp.MapFilesRoutes(fileGroup,fileHandlers,mw)
+	filesHttp.MapFilesRoutes(fileGroup, fileHandlers, mw)
 
 	health.GET("", func(c echo.Context) error {
 		s.logger.Infof("Health check RequestID: %s", utils.GetRequestID(c))

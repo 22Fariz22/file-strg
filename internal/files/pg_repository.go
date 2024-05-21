@@ -1,8 +1,10 @@
 package files
 
+import "context"
+
 // Files repository
 type Repository interface {
-	Upload()
+	Upload(ctx context.Context)
 	Download()
 	Delete()
 	Share()

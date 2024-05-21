@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/AleksK1NG/api-mc/internal/files"
@@ -19,27 +20,26 @@ func NewFilesRepository(db *sqlx.DB) files.Repository {
 }
 
 // Upload file
-func (r *filesRepo) Upload() {
+func (r *filesRepo) Upload(ctx context.Context) {
 	fmt.Println("In (r *filesRepo) Upload() ")
 }
 
 // Download file
 func (r *filesRepo) Download() {
-		fmt.Println("In (r *filesRepo) Download() ")
+	fmt.Println("In (r *filesRepo) Download() ")
 }
 
 // Delete file
 func (r *filesRepo) Delete() {
-		fmt.Println("In (r *filesRepo) Delete() ")
+	fmt.Println("In (r *filesRepo) Delete() ")
 }
 
 // Share file
 func (r *filesRepo) Share() {
-		fmt.Println("In (r *filesRepo) Share() ")
+	fmt.Println("In (r *filesRepo) Share() ")
 }
 
 // Update file
 func (r *filesRepo) Update() {
-		fmt.Println("In (r *filesRepo) Update() ")
+	fmt.Println("In (r *filesRepo) Update() ")
 }
-
