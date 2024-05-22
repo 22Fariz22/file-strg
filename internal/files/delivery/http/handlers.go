@@ -13,7 +13,6 @@ import (
 	"github.com/AleksK1NG/api-mc/pkg/logger"
 	"github.com/AleksK1NG/api-mc/pkg/utils"
 
-	// "github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 )
@@ -52,6 +51,8 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 
 		// Destination
 		path := "internal/files/tmp/upload/" + file.Filename
+		defer removeFile(path)
+
 		dst, err := os.Create(path)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
@@ -61,7 +62,6 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 
 		// Copy
 		if _, err = io.Copy(dst, src); err != nil {
-			go removeFile(path)
 			h.logger.Error(err)
 			return err
 		}
@@ -77,8 +77,6 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
-
-		go removeFile(path)
 
 		return c.String(http.StatusCreated, "File uploaded successfully!")
 	}
@@ -103,11 +101,9 @@ func (h fileHandlers) Download() echo.HandlerFunc {
 
 		// Destination
 		path := "internal/files/tmp/download/" + file.Title
+		defer removeFile(path)
 
-		fmt.Println("path download: ", path)
-
-		permissions := 0644 // or whatever you need
-		// byteArray := []byte("to be written to a file\n")
+		permissions := 0644
 		err = os.WriteFile(path, file.Content, fs.FileMode(permissions))
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
@@ -119,14 +115,44 @@ func (h fileHandlers) Download() echo.HandlerFunc {
 }
 
 func (h fileHandlers) Delete() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		return nil
+	return func(c echo.Context) error {
+		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(c), "filesHandlers.Delete")
+		defer span.Finish()
+
+		b, err := io.ReadAll(c.Request().Body)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		err = h.filesUC.Delete(ctx, &b)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		return c.String(http.StatusOK, "file deleted successfully")
 	}
 }
 
 func (h fileHandlers) Share() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		return nil
+	return func(c echo.Context) error {
+		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(c), "filesHandlers.Share")
+		defer span.Finish()
+
+		b, err := io.ReadAll(c.Request().Body)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		err = h.filesUC.Share(ctx, &b)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		return c.String(http.StatusOK, "file shared successfully")
 	}
 }
 

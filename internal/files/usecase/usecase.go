@@ -26,13 +26,11 @@ type filesUC struct {
 
 // Files UseCase constructor
 func NewFilesUseCase(cfg *config.Config, filesRepo files.Repository, logger logger.Logger) files.UseCase {
-	fmt.Println("In NewFilesUseCase")
 	return &filesUC{cfg: cfg, filesRepo: filesRepo, logger: logger}
 }
 
 // Upload file
 func (u *filesUC) Upload(ctx context.Context, filename string, filesize int64, content *[]byte) error {
-	fmt.Println("In (u *filesUC) Upload()")
 	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
 	defer span.Finish()
 
@@ -57,8 +55,6 @@ func (u *filesUC) Upload(ctx context.Context, filename string, filesize int64, c
 
 // Download file
 func (u *filesUC) Download(ctx context.Context, fileIdBytes *[]byte) (*models.File, error) {
-	fmt.Println("In (u *filesUC) Download()")
-
 	fileIdUiid, err := uuid.ParseBytes(*fileIdBytes)
 	if err != nil {
 		return nil, httpErrors.NewBadRequestError(errors.WithMessage(err, "filesUC.Download.ParseBytes"))
@@ -82,15 +78,30 @@ func (u *filesUC) Download(ctx context.Context, fileIdBytes *[]byte) (*models.Fi
 }
 
 // Delete file
-func (u *filesUC) Delete() {
-	fmt.Println("In (u *filesUC) Delete()")
+func (u *filesUC) Delete(ctx context.Context, fileIdBytes *[]byte) error {
+	file_id, err := uuid.ParseBytes(*fileIdBytes)
+	if err != nil {
+		return httpErrors.NewBadRequestError(errors.WithMessage(err, "filesUC.Download.ParseBytes"))
+	}
 
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		return httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.Download.GetUserFromCtx"))
+	}
+
+	err = u.filesRepo.Delete(ctx, user.UserID, file_id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Share file
-func (u *filesUC) Share() {
+func (u *filesUC) Share(ctx context.Context, user_id *[]byte) error {
 	fmt.Println("In (u *filesUC) Share()")
 
+	return nil
 }
 
 // Update file

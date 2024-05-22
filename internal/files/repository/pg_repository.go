@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/AleksK1NG/api-mc/internal/files"
 	"github.com/AleksK1NG/api-mc/internal/models"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
@@ -55,8 +57,26 @@ func (r *filesRepo) Download(ctx context.Context, file *models.File) (*models.Fi
 }
 
 // Delete file
-func (r *filesRepo) Delete() {
-	fmt.Println("In (r *filesRepo) Delete() ")
+func (r *filesRepo) Delete(ctx context.Context, user_id, file_id uuid.UUID) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "fileRepo.Delete")
+	defer span.Finish()
+
+	result, err := r.db.ExecContext(ctx,
+		`DELETE FROM files WHERE author_id = $1 and files_id = $2`,
+		user_id, file_id)
+	if err != nil {
+		return errors.Wrap(err, "filesRepo.Delete.ExecContext")
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "filesRepo.Delete.RowsAffected")
+	}
+	if rowsAffected == 0 {
+		return errors.Wrap(sql.ErrNoRows, "filesRepo.Delete.rowsAffected")
+	}
+
+	return nil
 }
 
 // Share file
