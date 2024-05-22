@@ -46,9 +46,9 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
 		defer src.Close()
-    
+
 		// Destination
-		path:= "internal/files/tmp/"+file.Filename
+		path := "internal/files/tmp/" + file.Filename
 		dst, err := os.Create(path)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
@@ -62,15 +62,14 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 			return err
 		}
 
-		b,err:=os.ReadFile(path)
+		b, err := os.ReadFile(path)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
-		fmt.Println("BBBB: ", b)
-   
-		
-		h.filesUC.Upload(ctx, file)
+    fmt.Println("FILESSIZE: ", file.Size)
+
+		h.filesUC.Upload(ctx, file.Filename,file.Size, &b)
 		return c.JSON(http.StatusCreated, nil)
 	}
 }

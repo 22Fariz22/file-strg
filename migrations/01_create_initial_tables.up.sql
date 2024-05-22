@@ -1,5 +1,7 @@
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS news CASCADE;
+DROP TABLE IF EXISTS files CASCADE;
+
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS CITEXT;
@@ -60,6 +62,7 @@ CREATE TABLE files
     author_id  UUID                     NOT NULL REFERENCES users (user_id),
     title      VARCHAR(250)             NOT NULL CHECK ( title <> '' ),
     content    BYTEA                    NOT NULL,
+    size       BIGINT                   DEFAULT 0,
     share      TEXT ,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE          DEFAULT CURRENT_TIMESTAMP

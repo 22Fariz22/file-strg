@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -45,6 +46,7 @@ func (h newsHandlers) Create() echo.HandlerFunc {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
+		fmt.Println("model news in handler create: ", n)
 		createdNews, err := h.newsUC.Create(ctx, n)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)

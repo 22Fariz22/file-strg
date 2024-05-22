@@ -2,12 +2,11 @@ package files
 
 import (
 	"context"
-	"mime/multipart"
 )
 
 // Files use case
 type UseCase interface {
-	Upload(ctx context.Context, file *multipart.FileHeader) error
+	Upload(ctx context.Context, filename string,filesize int64, content *[]byte) error
 	Download()
 	Delete()
 	Share()

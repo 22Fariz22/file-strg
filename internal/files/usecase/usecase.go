@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"mime/multipart"
 
 	"github.com/AleksK1NG/api-mc/config"
 	"github.com/AleksK1NG/api-mc/internal/files"
@@ -30,7 +29,7 @@ func NewFilesUseCase(cfg *config.Config, filesRepo files.Repository, logger logg
 }
 
 // Upload file
-func (u *filesUC) Upload(ctx context.Context, file *multipart.FileHeader) error {
+func (u *filesUC) Upload(ctx context.Context, filename string,filesize int64, content *[]byte) error {
 	fmt.Println("In (u *filesUC) Upload()")
 	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
 	defer span.Finish()
@@ -40,15 +39,17 @@ func (u *filesUC) Upload(ctx context.Context, file *multipart.FileHeader) error 
 		return httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.Upl.GetUserFromCtx"))
 	}
 
-	f := models.File{}
+	f := &models.File{}
 	f.AuthorID = user.UserID
-	f.Title = file.Filename
+	f.Title = filename
+	f.Content = *content
+	f.Size = filesize
 
 	if err = utils.ValidateStruct(ctx, f); err != nil {
 		return httpErrors.NewBadRequestError(errors.WithMessage(err, "newsUC.Create.ValidateStruct"))
 	}
 
-	u.filesRepo.Upload(ctx)
+	u.filesRepo.Upload(ctx, f)
 	return nil
 }
 

@@ -50,6 +50,7 @@ func (u *newsUC) Create(ctx context.Context, news *models.News) (*models.News, e
 	if err = utils.ValidateStruct(ctx, news); err != nil {
 		return nil, httpErrors.NewBadRequestError(errors.WithMessage(err, "newsUC.Create.ValidateStruct"))
 	}
+	fmt.Println("model news in usecase create: ", news)
 
 	n, err := u.newsRepo.Create(ctx, news)
 	if err != nil {

@@ -1,10 +1,14 @@
 package files
 
-import "context"
+import (
+	"context"
+
+	"github.com/AleksK1NG/api-mc/internal/models"
+)
 
 // Files repository
 type Repository interface {
-	Upload(ctx context.Context)
+	Upload(ctx context.Context, file *models.File)error
 	Download()
 	Delete()
 	Share()
