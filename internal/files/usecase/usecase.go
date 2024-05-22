@@ -3,10 +3,17 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
 
 	"github.com/AleksK1NG/api-mc/config"
 	"github.com/AleksK1NG/api-mc/internal/files"
+	"github.com/AleksK1NG/api-mc/internal/models"
+	"github.com/AleksK1NG/api-mc/pkg/httpErrors"
 	"github.com/AleksK1NG/api-mc/pkg/logger"
+	"github.com/AleksK1NG/api-mc/pkg/utils"
+
+	"github.com/opentracing/opentracing-go"
+	"github.com/pkg/errors"
 )
 
 // Files UseCase
@@ -23,9 +30,26 @@ func NewFilesUseCase(cfg *config.Config, filesRepo files.Repository, logger logg
 }
 
 // Upload file
-func (u *filesUC) Upload(ctx context.Context) {
+func (u *filesUC) Upload(ctx context.Context, file *multipart.FileHeader) error {
 	fmt.Println("In (u *filesUC) Upload()")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
+	defer span.Finish()
+
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		return httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.Upl.GetUserFromCtx"))
+	}
+
+	f := models.File{}
+	f.AuthorID = user.UserID
+	f.Title = file.Filename
+
+	if err = utils.ValidateStruct(ctx, f); err != nil {
+		return httpErrors.NewBadRequestError(errors.WithMessage(err, "newsUC.Create.ValidateStruct"))
+	}
+
 	u.filesRepo.Upload(ctx)
+	return nil
 }
 
 // Download file

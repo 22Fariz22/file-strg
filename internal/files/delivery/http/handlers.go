@@ -8,6 +8,7 @@ import (
 
 	"github.com/AleksK1NG/api-mc/config"
 	"github.com/AleksK1NG/api-mc/internal/files"
+	"github.com/AleksK1NG/api-mc/pkg/httpErrors"
 	"github.com/AleksK1NG/api-mc/pkg/logger"
 	"github.com/AleksK1NG/api-mc/pkg/utils"
 	"github.com/labstack/echo/v4"
@@ -29,12 +30,48 @@ func NewFileHandlers(cfg *config.Config, filesUC files.UseCase, logger logger.Lo
 
 func (h fileHandlers) Upload() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(c), "newsHandlers.Create")
+		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(c), "filesHandlers.Upload")
 		defer span.Finish()
 
-		h.filesUC.Upload(ctx)
-		return c.JSON(http.StatusCreated, nil)
+		// Source
+		file, err := c.FormFile("file")
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
 
+		src, err := file.Open()
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+		defer src.Close()
+    
+		// Destination
+		path:= "internal/files/tmp/"+file.Filename
+		dst, err := os.Create(path)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+		defer dst.Close()
+
+		// Copy
+		if _, err = io.Copy(dst, src); err != nil {
+			h.logger.Error(err)
+			return err
+		}
+
+		b,err:=os.ReadFile(path)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+		fmt.Println("BBBB: ", b)
+   
+		
+		h.filesUC.Upload(ctx, file)
+		return c.JSON(http.StatusCreated, nil)
 	}
 }
 

@@ -29,3 +29,6 @@ vendor
 
 # Avatars storage directory
 avatars/
+
+# temple files 
+internal/files/tmp/

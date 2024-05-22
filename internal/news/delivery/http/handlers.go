@@ -45,7 +45,6 @@ func (h newsHandlers) Create() echo.HandlerFunc {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
-
 		createdNews, err := h.newsUC.Create(ctx, n)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
