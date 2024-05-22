@@ -31,4 +31,5 @@ vendor
 avatars/
 
 # temple files 
-internal/files/tmp/
+internal/files/tmp/download/
+internal/files/tmp/upload/

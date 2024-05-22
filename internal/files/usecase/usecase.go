@@ -11,7 +11,9 @@ import (
 	"github.com/AleksK1NG/api-mc/pkg/logger"
 	"github.com/AleksK1NG/api-mc/pkg/utils"
 
+	"github.com/google/uuid"
 	"github.com/opentracing/opentracing-go"
+
 	"github.com/pkg/errors"
 )
 
@@ -29,14 +31,14 @@ func NewFilesUseCase(cfg *config.Config, filesRepo files.Repository, logger logg
 }
 
 // Upload file
-func (u *filesUC) Upload(ctx context.Context, filename string,filesize int64, content *[]byte) error {
+func (u *filesUC) Upload(ctx context.Context, filename string, filesize int64, content *[]byte) error {
 	fmt.Println("In (u *filesUC) Upload()")
 	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
 	defer span.Finish()
 
 	user, err := utils.GetUserFromCtx(ctx)
 	if err != nil {
-		return httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.Upl.GetUserFromCtx"))
+		return httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.Upload.GetUserFromCtx"))
 	}
 
 	f := &models.File{}
@@ -54,9 +56,29 @@ func (u *filesUC) Upload(ctx context.Context, filename string,filesize int64, co
 }
 
 // Download file
-func (u *filesUC) Download() {
+func (u *filesUC) Download(ctx context.Context, fileIdBytes *[]byte) (*models.File, error) {
 	fmt.Println("In (u *filesUC) Download()")
 
+	fileIdUiid, err := uuid.ParseBytes(*fileIdBytes)
+	if err != nil {
+		return nil, httpErrors.NewBadRequestError(errors.WithMessage(err, "filesUC.Download.ParseBytes"))
+	}
+
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		return nil, httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.Download.GetUserFromCtx"))
+	}
+
+	f := &models.File{}
+	f.AuthorID = user.UserID
+	f.FileID = fileIdUiid
+
+	file, err := u.filesRepo.Download(ctx, f)
+	if err != nil {
+		return nil, httpErrors.NewBadRequestError(errors.WithMessage(err, "filesUC.Download.filesRepo.Download"))
+	}
+
+	return file, nil
 }
 
 // Delete file

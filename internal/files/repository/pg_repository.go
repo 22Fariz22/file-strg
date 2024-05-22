@@ -23,25 +23,35 @@ func NewFilesRepository(db *sqlx.DB) files.Repository {
 }
 
 // Upload file
-func (r *filesRepo) Upload(ctx context.Context, file *models.File)error {
+func (r *filesRepo) Upload(ctx context.Context, file *models.File) error {
 	fmt.Println("IN (r *filesRepo) Upload() ")
 	span, ctx := opentracing.StartSpanFromContext(ctx, "filesRepo.Upload")
 	defer span.Finish()
 
-	res, err := r.db.ExecContext(ctx,"INSERT INTO files (author_id, title, content, size) VALUES($1,$2,$3,$4)",
+	res, err := r.db.ExecContext(ctx, "INSERT INTO files (author_id, title, content, size) VALUES($1,$2,$3,$4)",
 		file.AuthorID, file.Title, file.Content, file.Size)
 	if err != nil {
 		errors.Wrap(err, "filesRepo.Upload.Exec")
 		return err
 	}
-  fmt.Println("RES: ", res)
+	fmt.Println("RES: ", res)
 
 	return nil
 }
 
 // Download file
-func (r *filesRepo) Download() {
+func (r *filesRepo) Download(ctx context.Context, file *models.File) (*models.File, error) {
 	fmt.Println("In (r *filesRepo) Download() ")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "fileRepo.Download")
+	defer span.Finish()
+
+	if err := r.db.QueryRowxContext(ctx,
+		`SELECT title, content FROM files WHERE author_id = $1 and files_id = $2`,
+		file.AuthorID, file.FileID).StructScan(file); err != nil {
+		return nil, errors.Wrap(err, "fileRepo.Download.QueryRowxContext")
+	}
+
+	return file, nil
 }
 
 // Delete file

@@ -54,10 +54,6 @@ metrics:
   Url: 0.0.0.0:7070
   ServiceName: api
 
-
-mongodb:
-  MongoURI: uristring
-
 aws:
   Endpoint: 127.0.0.1:9000
   MinioAccessKey: minio

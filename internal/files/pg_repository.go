@@ -8,8 +8,8 @@ import (
 
 // Files repository
 type Repository interface {
-	Upload(ctx context.Context, file *models.File)error
-	Download()
+	Upload(ctx context.Context, file *models.File) error
+	Download(ctx context.Context, file *models.File) (*models.File, error)
 	Delete()
 	Share()
 	Update()

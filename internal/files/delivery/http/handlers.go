@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/AleksK1NG/api-mc/pkg/httpErrors"
 	"github.com/AleksK1NG/api-mc/pkg/logger"
 	"github.com/AleksK1NG/api-mc/pkg/utils"
+
+	// "github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 )
@@ -48,7 +51,7 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 		defer src.Close()
 
 		// Destination
-		path := "internal/files/tmp/" + file.Filename
+		path := "internal/files/tmp/upload/" + file.Filename
 		dst, err := os.Create(path)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
@@ -69,24 +72,49 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
 
-		err = h.filesUC.Upload(ctx, file.Filename,file.Size, &b)
-		if err!=nil {
+		err = h.filesUC.Upload(ctx, file.Filename, file.Size, &b)
+		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
-		
-    go removeFile(path)
+
+		go removeFile(path)
+
 		return c.String(http.StatusCreated, "File uploaded successfully!")
 	}
 }
 
-func removeFile(filename string){
-     _ = os.Remove(filename) 
-}
-
 func (h fileHandlers) Download() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		return nil
+	return func(c echo.Context) error {
+		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(c), "filesHandlers.Download")
+		defer span.Finish()
+
+		b, err := io.ReadAll(c.Request().Body)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		file, err := h.filesUC.Download(ctx, &b)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		// Destination
+		path := "internal/files/tmp/download/" + file.Title
+
+		fmt.Println("path download: ", path)
+
+		permissions := 0644 // or whatever you need
+		// byteArray := []byte("to be written to a file\n")
+		err = os.WriteFile(path, file.Content, fs.FileMode(permissions))
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		return c.File(path)
 	}
 }
 
@@ -106,4 +134,8 @@ func (h fileHandlers) Update() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		return nil
 	}
+}
+
+func removeFile(filename string) {
+	_ = os.Remove(filename)
 }
