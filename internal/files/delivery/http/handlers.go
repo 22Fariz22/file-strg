@@ -58,6 +58,7 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 
 		// Copy
 		if _, err = io.Copy(dst, src); err != nil {
+			go removeFile(path)
 			h.logger.Error(err)
 			return err
 		}
@@ -67,11 +68,20 @@ func (h fileHandlers) Upload() echo.HandlerFunc {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
-    fmt.Println("FILESSIZE: ", file.Size)
 
-		h.filesUC.Upload(ctx, file.Filename,file.Size, &b)
-		return c.JSON(http.StatusCreated, nil)
+		err = h.filesUC.Upload(ctx, file.Filename,file.Size, &b)
+		if err!=nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+		
+    go removeFile(path)
+		return c.String(http.StatusCreated, "File uploaded successfully!")
 	}
+}
+
+func removeFile(filename string){
+     _ = os.Remove(filename) 
 }
 
 func (h fileHandlers) Download() echo.HandlerFunc {
