@@ -135,7 +135,7 @@ func (r *filesRepo)	GetAllFiles(ctx context.Context,user *models.User,pq *utils.
 	var filesList = make([]*models.FilenameBase, 0, pq.GetSize())
 	rows, err := r.db.QueryxContext(ctx, getFiles,user.UserID, pq.GetOffset(), pq.GetLimit())
 	if err != nil {
-		return nil, errors.Wrap(err, "newsRepo.GetFiles.QueryxContext")
+		return nil, errors.Wrap(err, "filesRepo.GetFiles.QueryxContext")
 	}
 	defer rows.Close()
 
