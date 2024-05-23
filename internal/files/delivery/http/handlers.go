@@ -9,6 +9,7 @@ import (
 
 	"github.com/AleksK1NG/api-mc/config"
 	"github.com/AleksK1NG/api-mc/internal/files"
+	"github.com/AleksK1NG/api-mc/internal/models"
 	"github.com/AleksK1NG/api-mc/pkg/httpErrors"
 	"github.com/AleksK1NG/api-mc/pkg/logger"
 	"github.com/AleksK1NG/api-mc/pkg/utils"
@@ -140,19 +141,41 @@ func (h fileHandlers) Share() echo.HandlerFunc {
 		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(c), "filesHandlers.Share")
 		defer span.Finish()
 
-		b, err := io.ReadAll(c.Request().Body)
-		if err != nil {
+		share := &models.Share{}
+		if err := c.Bind(share); err != nil {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
+		fmt.Println("SH:", share)
 
-		err = h.filesUC.Share(ctx, &b)
+		err := h.filesUC.Share(ctx, share)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
 
 		return c.String(http.StatusOK, "file shared successfully")
+	}
+}
+
+func (h fileHandlers) GetAllFiles() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		span, ctx := opentracing.StartSpanFromContext(utils.GetRequestCtx(c), "filesHandlers.Share")
+		defer span.Finish()
+
+		pq, err := utils.GetPaginationFromCtx(c)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		fileList, err := h.filesUC.GetAllFiles(ctx,pq)
+		if err != nil {
+			utils.LogResponseError(c, h.logger, err)
+			return c.JSON(httpErrors.ErrorResponse(err))
+		}
+
+		return c.JSON(http.StatusOK, fileList)
 	}
 }
 

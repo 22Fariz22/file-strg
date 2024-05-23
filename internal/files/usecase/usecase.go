@@ -55,6 +55,9 @@ func (u *filesUC) Upload(ctx context.Context, filename string, filesize int64, c
 
 // Download file
 func (u *filesUC) Download(ctx context.Context, fileIdBytes *[]byte) (*models.File, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
+	defer span.Finish()
+
 	fileIdUiid, err := uuid.ParseBytes(*fileIdBytes)
 	if err != nil {
 		return nil, httpErrors.NewBadRequestError(errors.WithMessage(err, "filesUC.Download.ParseBytes"))
@@ -79,6 +82,9 @@ func (u *filesUC) Download(ctx context.Context, fileIdBytes *[]byte) (*models.Fi
 
 // Delete file
 func (u *filesUC) Delete(ctx context.Context, fileIdBytes *[]byte) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
+	defer span.Finish()
+
 	file_id, err := uuid.ParseBytes(*fileIdBytes)
 	if err != nil {
 		return httpErrors.NewBadRequestError(errors.WithMessage(err, "filesUC.Download.ParseBytes"))
@@ -98,10 +104,38 @@ func (u *filesUC) Delete(ctx context.Context, fileIdBytes *[]byte) error {
 }
 
 // Share file
-func (u *filesUC) Share(ctx context.Context, user_id *[]byte) error {
+func (u *filesUC) Share(ctx context.Context, share *models.Share) error {
 	fmt.Println("In (u *filesUC) Share()")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
+	defer span.Finish()
+
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		return httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.Upload.GetUserFromCtx"))
+	}
+
+	share.AuthorID = user.UserID
+	fmt.Println("SH in UC:", share)
+
+	err = u.filesRepo.Share(ctx, share)
+	if err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func (u *filesUC) GetAllFiles(ctx context.Context,pq *utils.PaginationQuery) (*models.FileList, error) {
+	fmt.Println("In (u *filesUC) GetAllFiles()")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.GetAllFiles")
+	defer span.Finish()
+
+	user, err := utils.GetUserFromCtx(ctx)
+	if err != nil {
+		return nil, httpErrors.NewUnauthorizedError(errors.WithMessage(err, "filesUC.GetAllFiles.GetUserFromCtx"))
+	}
+
+	return u.filesRepo.GetAllFiles(ctx, user, pq)
 }
 
 // Update file

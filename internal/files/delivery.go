@@ -8,5 +8,6 @@ type Handlers interface {
 	Download() echo.HandlerFunc
 	Delete() echo.HandlerFunc
 	Share() echo.HandlerFunc
+	GetAllFiles() echo.HandlerFunc
 	Update() echo.HandlerFunc
 }

@@ -58,7 +58,7 @@ CREATE TABLE comments
 
 CREATE TABLE files
 (
-    files_id    UUID PRIMARY KEY                 DEFAULT uuid_generate_v4(),
+    files_id   UUID PRIMARY KEY                 DEFAULT uuid_generate_v4(),
     author_id  UUID                     NOT NULL REFERENCES users (user_id),
     title      VARCHAR(250)             NOT NULL CHECK ( title <> '' ),
     content    BYTEA                    NOT NULL,
