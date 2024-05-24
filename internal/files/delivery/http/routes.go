@@ -14,5 +14,4 @@ func MapFilesRoutes(filesGroup *echo.Group, h files.Handlers, mw *middleware.Mid
 	filesGroup.DELETE("/delete", h.Delete(), mw.AuthSessionMiddleware)
 	filesGroup.POST("/share", h.Share(), mw.AuthSessionMiddleware)
 	filesGroup.GET("/all", h.GetAllFiles(), mw.AuthSessionMiddleware)
-	filesGroup.PUT("/update/:file_id", h.Update(), mw.AuthSessionMiddleware, mw.CSRF)
 }

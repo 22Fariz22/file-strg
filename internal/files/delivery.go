@@ -9,5 +9,4 @@ type Handlers interface {
 	Delete() echo.HandlerFunc
 	Share() echo.HandlerFunc
 	GetAllFiles() echo.HandlerFunc
-	Update() echo.HandlerFunc
 }

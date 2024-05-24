@@ -14,6 +14,5 @@ type Repository interface {
 	Download(ctx context.Context, file *models.File) (*models.File, error)
 	Delete(ctx context.Context, user_id, file uuid.UUID) error
 	Share(ctx context.Context, share *models.Share) error
-	GetAllFiles(ctx context.Context,user *models.User,pq *utils.PaginationQuery) (*models.FileList, error)
-	Update()
+	GetAllFiles(ctx context.Context, user *models.User, pq *utils.PaginationQuery) (*models.FileList, error)
 }

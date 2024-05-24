@@ -63,7 +63,7 @@ CREATE TABLE files
     title      VARCHAR(250)             NOT NULL CHECK ( title <> '' ),
     content    BYTEA                    NOT NULL,
     size       BIGINT                   DEFAULT 0,
-    share      TEXT ,
+    share      UUID ,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE          DEFAULT CURRENT_TIMESTAMP
 );

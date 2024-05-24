@@ -17,7 +17,7 @@ type File struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty" db:"updated_at"`
 }
 
-type FilenameBase struct{
+type FilenameBase struct {
 	FileID    uuid.UUID `json:"file_id" db:"files_id" validate:"omitempty,uuid"`
 	AuthorID  uuid.UUID `json:"author_id,omitempty" db:"author_id" validate:"required"`
 	Title     string    `json:"title" db:"title" validate:"required,gte=10"`
@@ -28,11 +28,11 @@ type FilenameBase struct{
 
 // All Files response
 type FileList struct {
-	TotalCount int     `json:"total_count"`
-	TotalPages int     `json:"total_pages"`
-	Page       int     `json:"page"`
-	Size       int     `json:"size"`
-	HasMore    bool    `json:"has_more"`
+	TotalCount int             `json:"total_count"`
+	TotalPages int             `json:"total_pages"`
+	Page       int             `json:"page"`
+	Size       int             `json:"size"`
+	HasMore    bool            `json:"has_more"`
 	Files      []*FilenameBase `json:"files"`
 }
 

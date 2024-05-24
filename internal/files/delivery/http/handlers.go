@@ -169,19 +169,13 @@ func (h fileHandlers) GetAllFiles() echo.HandlerFunc {
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
 
-		fileList, err := h.filesUC.GetAllFiles(ctx,pq)
+		fileList, err := h.filesUC.GetAllFiles(ctx, pq)
 		if err != nil {
 			utils.LogResponseError(c, h.logger, err)
 			return c.JSON(httpErrors.ErrorResponse(err))
 		}
 
 		return c.JSON(http.StatusOK, fileList)
-	}
-}
-
-func (h fileHandlers) Update() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		return nil
 	}
 }
 

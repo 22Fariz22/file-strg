@@ -55,7 +55,7 @@ func (u *filesUC) Upload(ctx context.Context, filename string, filesize int64, c
 
 // Download file
 func (u *filesUC) Download(ctx context.Context, fileIdBytes *[]byte) (*models.File, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Upload")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.Dowload")
 	defer span.Finish()
 
 	fileIdUiid, err := uuid.ParseBytes(*fileIdBytes)
@@ -125,7 +125,7 @@ func (u *filesUC) Share(ctx context.Context, share *models.Share) error {
 	return nil
 }
 
-func (u *filesUC) GetAllFiles(ctx context.Context,pq *utils.PaginationQuery) (*models.FileList, error) {
+func (u *filesUC) GetAllFiles(ctx context.Context, pq *utils.PaginationQuery) (*models.FileList, error) {
 	fmt.Println("In (u *filesUC) GetAllFiles()")
 	span, ctx := opentracing.StartSpanFromContext(ctx, "filesUC.GetAllFiles")
 	defer span.Finish()
@@ -136,10 +136,4 @@ func (u *filesUC) GetAllFiles(ctx context.Context,pq *utils.PaginationQuery) (*m
 	}
 
 	return u.filesRepo.GetAllFiles(ctx, user, pq)
-}
-
-// Update file
-func (u *filesUC) Update() {
-	fmt.Println("In (u *filesUC) Update()")
-
 }

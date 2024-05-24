@@ -13,6 +13,5 @@ type UseCase interface {
 	Download(ctx context.Context, file_id *[]byte) (*models.File, error)
 	Delete(ctx context.Context, file_id *[]byte) error
 	Share(ctx context.Context, share *models.Share) error
-	GetAllFiles(ctx context.Context,pq *utils.PaginationQuery) (*models.FileList, error)
-	Update()
+	GetAllFiles(ctx context.Context, pq *utils.PaginationQuery) (*models.FileList, error)
 }
