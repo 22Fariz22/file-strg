@@ -96,7 +96,7 @@ func (s *Server) MapHandlers(e *echo.Echo) error {
 		},
 	}))
 	e.Use(middleware.Secure())
-	e.Use(middleware.BodyLimit("100M"))
+	e.Use(middleware.BodyLimit("1000M"))
 	if s.cfg.Server.Debug {
 		e.Use(mw.DebugMiddleware)
 	}
